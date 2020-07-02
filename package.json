@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/LeonKie/throng/issues"
   },
-  "homepage": "https://github.com/LeonKie/throng#readme"
+  "homepage": "https://github.com/LeonKie/throng#readme",
+  "dependencies": {
+    "redux": "^4.0.5"
+  }
 }
