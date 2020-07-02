@@ -5,7 +5,8 @@
   "main": "client.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node server.js",
+    "format": "prettier --no-semi --write --single-quote --tab-width 4 \"{client,server}/**/*\""
   },
   "repository": {
     "type": "git",
@@ -19,7 +20,9 @@
   "homepage": "https://github.com/LeonKie/throng#readme",
   "dependencies": {
     "express": "^4.17.1",
-    "redux": "^4.0.5",
-    "ws": "^7.3.0"
+    "redux": "^4.0.5"
+  },
+  "devDependencies": {
+    "prettier": "^2.0.5"
   }
 }
