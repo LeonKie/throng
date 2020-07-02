@@ -16,5 +16,10 @@
   "bugs": {
     "url": "https://github.com/LeonKie/throng/issues"
   },
-  "homepage": "https://github.com/LeonKie/throng#readme"
+  "homepage": "https://github.com/LeonKie/throng#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "redux": "^4.0.5",
+    "ws": "^7.3.0"
+  }
 }
