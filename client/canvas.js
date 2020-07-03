@@ -32,6 +32,8 @@ const store = createStore(
 
 showGameSetup()
 
+canvas.onmousemove = getMousePos
+
 function showGameSetup() {
     ctx.fillStyle = '#FF0000'
     ctx.beginPath()
@@ -60,9 +62,7 @@ function drawQuestions(answerPositions) {
 }
 
 function showAllPlayers() {
-    getMousePos(canvas)
-    store.dispatch(updateOwnPos(mouseX, mouseY))
-
+    
     const { puck, angles } = store.getState()
     ctx.beginPath()
     ctx.arc(puck[0], puck[1], 10, 0, 2 * Math.PI)
@@ -91,12 +91,12 @@ function updatePuck(pick_old) {
     store.dispatch(movePuckAction(puckVec[0], puckVec[1]))
 }
 
-function getMousePos(canvas, evt) {
+function getMousePos(evt) {
     var rect = canvas.getBoundingClientRect()
-    return {
-        x: evt.clientX - rect.left,
-        y: evt.clientY - rect.top,
-    }
+    const x=evt.clientX - rect.left
+    const y= evt.clientY - rect.top
+    store.dispatch(updateOwnPos(x, y))
+    
 }
 
 function loop() {
@@ -106,4 +106,4 @@ function loop() {
     showAllPlayers()
 }
 
-window.setInterval(loop, 100)
+window.setInterval(loop, 1000)

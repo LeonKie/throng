@@ -2,7 +2,7 @@ import { MOVE_PUCK, UPDATE_OWN_POS } from './actions'
 
 const RootReducer = (state, action) => {
     switch (action.type) {
-        case MOVE_PUCK:
+        case MOVE_PUCK: {
             const {
                 payload: { xRel, yRel },
             } = action
@@ -13,6 +13,7 @@ const RootReducer = (state, action) => {
 
             console.log(puck)
             return { ...state, puck }
+        }
         case UPDATE_OWN_POS:
             const {
                 payload: { mouseX, mouseY },
