@@ -1,0 +1,51 @@
+body {margin: 0;}
+
+#answers-Text {
+    pointer-events: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+@media (min-width: 600px){
+svg {
+    width: 50vw;
+    height: 100vh;
+}
+
+.main-container {
+    display: flex;
+}
+
+#people-div {
+    width: 50vw;
+    height: 100vh;
+    background-color: blue;
+}
+
+#answers-Text {
+    pointer-events: none;
+}
+}
+
+@media (max-width: 600px){
+
+    body {margin: 0;}
+
+    svg {
+        width: 100vw;
+        height: 50vh;
+    }
+    
+    #people-div {
+        width: 100vw;
+        height: 50vh;
+        background-color: blue;
+    }
+
+    #answers-Text {
+        pointer-events: none;
+    }
+
+}
