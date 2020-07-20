@@ -1,4 +1,5 @@
 
+
 const svg=document.getElementById("sim")
 const dimention =svg.getBoundingClientRect();
 const width=dimention.width;
@@ -7,17 +8,42 @@ const height=dimention.height;
 const answerRad = 250;
 const xy_center = 400;
 
-//const svg = DOM.svg(width,height)
+
+let playerKey=undefined;
+
+
+
+//-----------------------------------------
+let socket = io();
+
+const roomID= location.hash.slice(1)
+
+const initData = undefined;
+
+document.getElementById("start").addEventListener("click",()=>{
+    socket.emit("start",roomID)
+})
+
+//--------------------------------
+
+
 let data= ({
     "puck": {
       "x":xy_center,
       "y":xy_center,
     },
-    "player" : [{"id":1,"ang":0}],//,{"id":2,"ang":180},{"id":3,"ang":50}],
-    "question" : ["What restaurant is the best?"],
-    "answers": ["Indian","Mexican","German","Chinese","Italy"]
+    "player" : [],//,{"id":2,"ang":180},{"id":3,"ang":50}],
+    "question" : [],//["What restaurant is the best?"],
+    "answers": []//["Indian","Mexican","German","Chinese","Italy"]
   }) 
-  
+
+
+
+
+
+
+
+
 
 const mag="M40.58 130.95C39.94 159.94 39.94 186.96 40.58 212C41.55 249.56 -40.59 246.59 -40.59 212C-40.59 188.94 -40.59 161.92 -40.59 130.95";
 const d="m-20.492,0.7172l0,0c0,-11.56447 9.37485,-20.93932 20.93932,-20.93932l0,0c5.55345,0 10.87945,2.2061 14.80633,6.13299c3.92688,3.92688 6.13299,9.25288 6.13299,14.80634l0,0c0,11.56447 -9.37485,20.93932 -20.93932,20.93932l0,0c-11.56447,0 -20.93932,-9.37486 -20.93932,-20.93932zm10.46966,0l0,0c0,5.78223 4.68743,10.46966 10.46966,10.46966c5.78224,0 10.46966,-4.68743 10.46966,-10.46966c0,-5.78223 -4.68743,-10.46966 -10.46966,-10.46966l0,0c-5.78223,0 -10.46966,4.68743 -10.46966,10.46966z";
@@ -35,13 +61,17 @@ function update(d,i){
     const mouse=d3.mouse(svg)
     
     //console.log(data.puck.x,data.puck.y,mouse[0],mouse[1])
-    data.player[0].ang=getAngle(data.puck.x,data.puck.y,mouse[0],mouse[1])
+    const angle=getAngle(data.puck.x,data.puck.y,mouse[0],mouse[1])
+    const playerIndex=data.player.findIndex(e=>e.id==playerKey)
+    console.log("PlayerKey: ",playerKey)
+    data.player[playerIndex]["ang"]=angle;
     //console.log(data.player[0].ang)
-    const puckG = d3.select("svg").selectAll("g")
-    puckG.selectAll("#mags").transition()
-        .duration(50)
-        .attr("transform",d => `scale (0.25) rotate(${d.ang-90})`);
-    
+    const puckG = d3.select("svg").selectAll("#puckGroup")
+    updateMags()
+    //puckG.selectAll("#mags").transition()
+    //    .duration(50)
+    //    .attr("transform",d => `scale (0.25) rotate(${d.ang-90})`);
+    socket.emit("updateAng",{roomID,playerKey,angle})
 }
   
 function loop(){
@@ -95,85 +125,161 @@ function loop(){
         },
         [0, 0]
     )
-
-    
-    
     console.log("Forces",distences,answerPositions,answerForce)
-    const factor = Math.exp(-0.6*Math.min.apply(Math,distences))
+    const factor = Math.exp(-0.1*Math.min.apply(Math,distences))
     console.log("Factor",factor)
     data.puck.x=data.puck.x+(1-factor)*puckVec[0]+factor*answerForce[0];
     data.puck.y=data.puck.y+(1-factor)*puckVec[1]+factor*answerForce[1];
     console.log(puckVec,angles)
     d3.select("svg").selectAll("#puckGroup").transition()
-                 .duration(50)
-                 .attr("transform", d => `translate( ${d.puck.x} ${d.puck.y})`)
-  
-  
+                    .duration(50)
+                    .attr("transform", d => `translate( ${d.puck.x} ${d.puck.y})`)
   }
   
-  d3.select("svg")
-           .on("mousemove", update)
-           .on("click",loop);
+d3.select("svg")
+           .on("mousemove", update);
+           //.on("click",loop);
+
+
+function loadQuestions(){
+
+    const questionG = d3.select("svg").selectAll("#questionG").data([data]).enter().append("g")
+                    .attr("id","questionG")
+                    .attr("transform", d => `translate(${d.puck.x} ${d.puck.y})`)
+
+    questionG.selectAll("#question").data(data.question).enter().append("text")
+                    .attr("id","question")
+                    .attr("x","0")
+                    .attr("y","-350")
+                    .attr("font-family", "sans-serif")
+                    .attr("font-size", "35px")
+                    .attr("alignment-baseline","middle")
+                    .attr("text-anchor","middle")
+                    .text(d => d)
+
+    const answerCicle = d3.select("svg").selectAll("#answersG").data([data]).enter().append("g")
+                    .attr("id","answersG")
+                    .attr("transform", d => `translate(${d.puck.x} ${d.puck.y})`)
+
+    
+                    
+
+    answerCicle.selectAll("#ring").data(data.answers).enter().append("circle")
+                    .attr("id","ring")
+                    .attr("r","250")
+                    .attr("stroke","#000")
+                    .attr("fill-opacity","0")
+                    .attr("stroke-width","2");
+
+    answerCicle.selectAll("#answers").data(data.answers).enter().append("circle")
+                    .attr("id","answers")
+                    .attr("r","6")
+                    .attr("cx","250")
+                    .attr("cy","0")
+                    .attr("stroke","#000")
+                    .attr("fill","#fff")
+                    .attr("stroke-width","4")
+                    .attr("transform", (d,i) => `rotate(${360/data.answers.length*i})`)
+
+
+    answerCicle.selectAll("#answers-Text").data(data.answers).enter().append("text")
+                    .attr("id","answers-Text")
+                    .attr("x","270")
+                    .attr("y","0")
+                    .attr("font-family", "sans-serif")
+                    .attr("font-size", "20px")
+                    .attr("alignment-baseline","middle")
+                    .text(d => d)
+                    .attr("transform", (d,i) => `rotate(${360/data.answers.length*i})`)    
+                    
+}
+
+    const puckG = d3.select("svg").selectAll("#puckGroup").data([data]).enter().append("g")
+                .attr("transform", d => `translate( ${d.puck.x} ${d.puck.y})`)
+                .attr("id","puckGroup");
+
+                
   
-
-  const answerCicle = d3.select("svg").selectAll("#answersG").data([data]).enter().append("g")
-                .attr("id","answersG")
-                .attr("transform", d => `translate(${d.puck.x} ${d.puck.y})`)
-
-  const puckG = d3.select("svg").selectAll("#puckGroup").data([data]).enter().append("g")
-                 .attr("transform", d => `translate( ${d.puck.x} ${d.puck.y})`)
-                 .attr("id","puckGroup");
-                 
- ;
-
- answerCicle.selectAll("#ring").data(data.answers).enter().append("circle")
-                 .attr("id","ring")
-                 .attr("r","250")
-                 .attr("stroke","#000")
-                 .attr("fill-opacity","0")
-                 .attr("stroke-width","2");
-
- answerCicle.selectAll("#answers").data(data.answers).enter().append("circle")
-                 .attr("id","answers")
-                 .attr("r","6")
-                 .attr("cx","250")
-                 .attr("cy","0")
-                 .attr("stroke","#000")
-                 .attr("fill","#fff")
-                 .attr("stroke-width","4")
-                 .attr("transform", (d,i) => `rotate(${360/data.answers.length*i})`)
-
-
-answerCicle.selectAll("#answers-Text").data(data.answers).enter().append("text")
-                 .attr("id","answers-Text")
-                 .attr("x","270")
-                 .attr("y","0")
-                 .attr("font-family", "sans-serif")
-                 .attr("font-size", "20px")
-                 .attr("alignment-baseline","middle")
-                 .text(d => d)
-                 .attr("transform", (d,i) => `rotate(${360/data.answers.length*i})`)                
+function enterMags(){   
   
-  puckG.selectAll("#puck").data([data]).enter().append("path")
+    puckG.selectAll("#puck").data([data]).enter().append("path")
                  .attr("d",d)
                  .attr("id","puck")
                  .attr("fill","#fff")
                  .attr("stroke","#000")
                  .attr("stroke-width","4")
                  .attr("transform",d => `scale (1.1)`);
-                
-  
-                   
-  puckG.selectAll("#mags").data(data.player).enter().append("path")
-                 .attr("d",mag)
-                 .attr("id","mags")
-                 .attr("fill","#fff")
-                 .attr("fill-opacity","0")
-                 .attr("stroke","#000")
-                 .attr("stroke-width","22")
-                 .attr("transform",d => `scale (0.25) rotate(${d.ang-90})`);
+
+    
+    puckG.selectAll("#mags").data(data.player).enter().append("path")
+                    .attr("d",mag)
+                    .attr("id","mags")
+                    .attr("fill","#fff")
+                    .attr("fill-opacity","0")
+                    .attr("stroke","#000")
+                    .attr("stroke-width","22")
+                    .attr("transform",d => `scale (0.25) rotate(${d.ang-90})`);
+}
+function updateMags(){
+
+    puckG.selectAll("#mags").data(data.player).enter().append("path")
+                    .attr("d",mag)
+                    .attr("id","mags")
+                    .attr("fill","#fff")
+                    .attr("fill-opacity","0")
+                    .attr("stroke","#000")
+                    .attr("stroke-width","22")
+                    .attr("transform",d => `scale (0.25) rotate(${d.ang-90})`);
+
+
+    puckG.selectAll("#mags").transition()
+            .duration(50)
+            .attr("transform",d => `scale (0.25) rotate(${d.ang-90})`);
+}
  
- 
+socket.on("initData", d=>{
+    console.log("Data recieved: ",d);
+    data.question=d.question;
+    data.answers=d.answers;
+    data.player=d.player;
+    playerKey=d.playerKey;
+    console.log("R",roomID,"P",playerKey,data)
+    loadQuestions();
+    enterMags();
+    //updateMags();
+    socket.emit("initData_finished");
+
+});
+
+socket.on("updatePositon",d=>{
+    data.player=d;
+    console.log(data.player.map(e=>e.ang))
+    updateMags();
+});
+
+socket.on('connectToRoom', () => {
+    console.log("i want to join!")
+    if (typeof(playerKey)=="undefined"){
+
+        //const playerKey = document.cookie
+        //.split('; ')
+        //.find(row => row.startsWith(id))
+        //.split('=')[1];
+        socket.emit("join-room", {roomID,playerKey});
+    }else{
+        console.log("Key already exist",playerKey)
+    }
+});
+
+socket.on("setKey", Pkey=> {
+    //document.cookie= roomID+"="+Pkey;
+    playerKey = Pkey;
+    console.log("key arrived:",playerKey)
+});
+
+socket.on("start",()=>{
+    window.setInterval(loop, 10)
+});
 //window.setInterval(loop, 1000)
  
 

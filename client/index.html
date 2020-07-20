@@ -1,18 +1,59 @@
+
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="client.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://d3js.org/d3.v5.min.js"></script>
-    <title>Thong</title>
-</head>
-<body>
-    <div class="main-container">
-    <svg id=sim viewBox="0 0 800 800" preserveAspectRatio="slice">
-    </svg>
-    <div id="people-div"></div>
-    </div>
-    <script src="client.js"></script>
-</body>
+<html>
+   <head>
+      <link rel="stylesheet" href="form.css">
+      <title>Hello world</title>
+   </head>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+   <script src="/socket.io/socket.io.js"></script>
+   
+   <body>
+      <button class="open-button" onclick="openForm()">Create Poll</button>
+
+   <div class="form-popup" id="myForm">
+     <form class="form-container">
+       <h1>Enter Question!</h1>
+   
+       <label for="text"><b>Question</b></label>
+       <input type="text" placeholder="Enter question" name="question" required>
+   
+       <label for="text"><b>Answer</b></label>
+       <div class="ansewer-container"> <div > <input id="answers" type="text" placeholder="Enter short answer" name="answers" required> </div> </div>
+       <button class="add_form_field"><span style="font-size:16px; font-weight:bold;">+</span></button>
+       <button type="button" class="btn" id="create">Create</button>
+       <button type="button" class="btn cancel" onclick="closeForm()">Close</button>
+     </form>
+   </div>
+   
+   <script src="form.js"></script>
+   <script>
+   function openForm() {
+     document.getElementById("myForm").style.display = "block";
+   }
+   function closeForm() {
+     document.getElementById("myForm").style.display = "none";
+
+   }
+   </script>
+   <script>
+      let socket = io();
+      
+      document.getElementById("create").addEventListener("click",()=>{
+         let answers = $('[name="answers"]').map((_,el) => el.value).get()
+         let question = [$('[name="question"]').val()]
+         console.log(answers)
+         console.log(question)
+         console.log("create");
+         closeForm();
+         socket.emit("create-room",{"answers":answers,"question":question});
+      })
+
+      socket.on("/rooms",id =>{
+         location.replace(location.href+"rooms#"+id)
+      });
+ 
+   </script>
+
+   </body>
 </html>
