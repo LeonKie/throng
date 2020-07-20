@@ -1,6 +1,22 @@
 
-body {font-family: Arial, Helvetica, sans-serif;}
+body {font-family: Arial, Helvetica, sans-serif;margin: 0;
+    /*background-image: url("../papaioannou-kostas-tysecUm5HJA-unsplash.jpg");*/
+    background-size: 100% cover; /* for IE9+, Safari 4.1+, Chrome 3.0+, Firefox 3.6+ */
+        -webkit-background-size:  auto 100% ; /* for Safari 3.0 - 4.0 , Chrome 1.0 - 3.0 */
+        -moz-background-size: 100% cover ; /* optional for Firefox 3.6 */ 
+        -o-background-size: 100% cover ; /* for Opera 9.5 */
+        margin: 0; /* to remove the default white margin of body */
+        padding: 0; /* to remove the default white margin of body */
+        overflow: hidden;
+        background-position: 50% 0%;
+}
 * {box-sizing: border-box;}
+svg {
+    display: block;
+    margin: auto;
+    height: 80vh;
+
+}
 
 /* Button used to open the contact form - fixed at the bottom of the page */
 .open-button {
@@ -11,9 +27,28 @@ body {font-family: Arial, Helvetica, sans-serif;}
   cursor: pointer;
   opacity: 0.8;
   position: fixed;
-  bottom: 23px;
-  right: 28px;
+  left: calc(50vw - 280px/2);
+  bottom: 10px;
   width: 280px;
+}
+
+.topnav{
+    margin: auto;
+    width: 100vw;
+    height: 60px;
+    background-color: rgb(26, 26, 26);
+}
+
+.name {
+    margin: auto;
+    color: white;
+    padding: 15px 30px;
+    text-align: left;
+    font-size: 25px;
+    float: left;
+    font-family: Arial, Helvetica, sans-serif;
+    
+    
 }
 
 /* The popup form - hidden by default */
@@ -21,9 +56,10 @@ body {font-family: Arial, Helvetica, sans-serif;}
   display: none;
   position: fixed;
   bottom: 0;
-  right: 15px;
+  position: fixed;
+  left: calc(50vw - 300px/2);
   border: 3px solid #f1f1f1;
-  z-index: 9;
+  
 }
 
 /* Add styles to the form container */

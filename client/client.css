@@ -8,10 +8,31 @@ body {margin: 0;}
     user-select: none;
 }
 
+
+
 @media (min-width: 600px){
 svg {
-    width: 50vw;
-    height: 100vh;
+    width: calc(100vw - 300px);
+    height: calc(100vh - 60px);
+}
+
+.topnav{
+    margin: auto;
+    width: 100vw;
+    height: 60px;
+    background-color: rgb(26, 26, 26);
+}
+
+.name {
+    margin: auto;
+    color: white;
+    padding: 15px 30px;
+    text-align: left;
+    font-size: 25px;
+    float: left;
+    font-family: Arial, Helvetica, sans-serif;
+    
+    
 }
 
 .main-container {
@@ -19,9 +40,26 @@ svg {
 }
 
 #people-div {
-    width: 50vw;
-    height: 100vh;
-    background-color: blue;
+    width: 300px;
+    height: calc( 100vh - 60px);
+    background-color: rgb(240, 240, 240);
+    position: relative;
+}
+
+#start {
+    background-color: #4CAF50;
+    color: white;
+    padding: 16px 20px;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    opacity: 0.8;
+    position: absolute;
+    bottom: 0;
+}
+
+#start:hover{
+    opacity: 1;
 }
 
 #answers-Text {
@@ -35,17 +73,34 @@ svg {
 
     svg {
         width: 100vw;
-        height: 50vh;
+        height: 80vh;
     }
     
     #people-div {
-        width: 100vw;
-        height: 50vh;
-        background-color: blue;
+        width: 100vh;
+        height: 20vh;
+        background-color: rgb(240, 240, 240);
+        position: relative;
     }
 
     #answers-Text {
         pointer-events: none;
+    }
+    #start {
+        background-color: #4CAF50;
+        color: white;
+        padding: 16px 20px;
+        border: none;
+        cursor: pointer;
+        width: 100%;
+        margin-bottom:10px;
+        opacity: 0.8;
+        position: absolute;
+        top: 0;
+    }
+    
+    #start:hover{
+        opacity: 1;
     }
 
 }

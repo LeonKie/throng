@@ -16,7 +16,7 @@ let created_rooms= [
     }
 ];
 app.get("/rooms", (req, res) => {
-        res.sendFile(__dirname+"/client/thong.html");
+        res.sendFile(__dirname+"/client/swarm.html");
         // Verify the id and return the clientside code
      });
 
@@ -34,6 +34,7 @@ io.on('connection', function(socket) {
                             "answers":data.answers
                         });
         //socket.join(roomID);
+        console.log(created_rooms)
         socket.emit("/rooms", roomID)
         //socket.emit("setKey",1)
         console.log("you are in room: ", roomID )
@@ -73,6 +74,7 @@ io.on('connection', function(socket) {
             socket.join(roomID);
             let initD = created_rooms[myRoom_ind]
             initD.playerKey=myID;
+            console.log("InitD:" ,initD);
             socket.emit("initData",initD);
             socket.on("initData_finished",()=>{
                 const myRoom_ind =created_rooms.findIndex(e => e.id==roomID);
@@ -111,11 +113,11 @@ io.on('connection', function(socket) {
                 //console.log(created_rooms[roomIndex].player, "id: ", playerIndex)
                 if (playerIndex!=-1){
                 created_rooms[roomIndex].player[playerIndex]["ang"]=angle;
-                console.log(created_rooms[roomIndex]);
+                //console.log(created_rooms[roomIndex]);
                 
                 //emit
                 if (io.sockets.adapter.rooms[roomID].length>0){
-                    console.log("position emmited",created_rooms[roomIndex].player)
+                    //console.log("position emmited",created_rooms[roomIndex].player)
                     io.sockets.in(roomID).emit('updatePositon',created_rooms[roomIndex].player);
                 }
             }
@@ -142,6 +144,6 @@ io.on('connection', function(socket) {
   
 })
 
-http.listen(3000, function() {
-   console.log('listening on localhost:3000');
+http.listen(3000, "192.168.2.149", function() {
+   console.log('listening on localhost:3000 \n and 192.168.2.149:3000');
 });
