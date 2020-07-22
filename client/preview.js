@@ -158,15 +158,34 @@ function loadQuestions(){
                     .attr("transform", (d,i) => `rotate(${360/data.answers.length*i})`)
 
 
+    
     answerCicle.selectAll("#answers-Text").data(data.answers).enter().append("text")
                     .attr("id","answers-Text")
-                    .attr("x","270")
+                    .attr("x","0")
                     .attr("y","0")
                     .attr("font-family", "sans-serif")
                     .attr("font-size", "20px")
                     .attr("alignment-baseline","middle")
+                    .attr("text-anchor", (d,i)=> { 
+                        const rot = 360/data.answers.length*i;
+                        console.log(rot)
+                        switch (true) {
+                            case (rot<80 || rot>280):
+                                console.log("start")
+                                return "start";
+                            
+                            case ( (80<=rot && rot<=100) || 260<=rot && rot<=280):
+                                return "middle";
+                            
+                            case (100<rot<260):
+                                return "end"
+                            default:
+                                console.log("fail")
+                                break;
+                        }
+                    })
                     .text(d => d)
-                    .attr("transform", (d,i) => `rotate(${360/data.answers.length*i})`)    
+                    .attr("transform", (d,i) => `translate(270 0) rotate(${360/data.answers.length*i} -270 0) rotate(${-360/data.answers.length*i} 0 0)`)    
                     
 }
 
