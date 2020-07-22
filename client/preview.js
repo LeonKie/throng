@@ -114,7 +114,8 @@ function loop(){
   
 d3.select("svg")
            .on("mousemove", update)
-           .on("click",loop);
+           .on("touchmove",update);
+           //.on("click",loop);
 
 
 function loadQuestions(){

@@ -9,8 +9,7 @@ const answerRad = 250;
 const xy_center = 400;
 
 
-let playerKey=undefined;
-
+let playerIndex = undefined;
 
 
 //-----------------------------------------
@@ -62,8 +61,8 @@ function update(d,i){
     
     //console.log(data.puck.x,data.puck.y,mouse[0],mouse[1])
     const angle=getAngle(data.puck.x,data.puck.y,mouse[0],mouse[1])
-    const playerIndex=data.player.findIndex(e=>e.id==playerKey)
-    console.log("PlayerKey: ",playerKey)
+    playerIndex=data.player.findIndex(e=>e.id==socket.id)
+    console.log("PlayerKey: ",playerIndex, "Socket ID", socket.id)
     data.player[playerIndex]["ang"]=angle;
     //console.log(data.player[0].ang)
     const puckG = d3.select("svg").selectAll("#puckGroup")
@@ -71,7 +70,7 @@ function update(d,i){
     //puckG.selectAll("#mags").transition()
     //    .duration(50)
     //    .attr("transform",d => `scale (0.25) rotate(${d.ang-90})`);
-    socket.emit("updateAng",{roomID,playerKey,angle})
+    socket.emit("updateAng",{roomID,angle})
 }
   
 function loop(){
@@ -137,7 +136,8 @@ function loop(){
   }
   
 d3.select("svg")
-           .on("mousemove", update);
+           .on("mousemove", update)
+           .on("touchmove",update);
            //.on("click",loop);
 
 
@@ -183,7 +183,7 @@ function loadQuestions(){
 
     answerCicle.selectAll("#answers-Text").data(data.answers).enter().append("text")
                     .attr("id","answers-Text")
-                    .attr("x","270")
+                    .attr("x","0")
                     .attr("y","0")
                     .attr("font-family", "sans-serif")
                     .attr("font-size", "20px")
@@ -207,7 +207,7 @@ function loadQuestions(){
                         }
                     })
                     .text(d => d)
-                    .attr("transform", (d,i) => `rotate(${360/data.answers.length*i})`)    
+                    .attr("transform", (d,i) => `translate(270 0) rotate(${360/data.answers.length*i} -270 0) rotate(${-360/data.answers.length*i} 0 0)`)    
                     
 }
 
@@ -233,9 +233,9 @@ function enterMags(){
                     .attr("id","mags")
                     .attr("fill","#fff")
                     .attr("fill-opacity","0")
-                    .attr("stroke","#000")
+                    .attr("stroke",(d,i)=> i==playerIndex ?	"#f44336": "#000")
                     .attr("stroke-width","22")
-                    .attr("transform",d => `scale (0.25) rotate(${d.ang-90})`);
+                    .attr("transform",(d,i) => `scale (${i==playerIndex ? 0.35 : 0.25}) rotate(${d.ang-90})`);
 }
 function updateMags(){
 
@@ -244,14 +244,14 @@ function updateMags(){
                     .attr("id","mags")
                     .attr("fill","#fff")
                     .attr("fill-opacity","0")
-                    .attr("stroke","#000")
+                    .attr("stroke",(d,i)=> i==playerIndex ?	"#f44336": "#000")
                     .attr("stroke-width","22")
-                    .attr("transform",d => `scale (0.25) rotate(${d.ang-90})`);
+                    .attr("transform",(d,i) => `scale (${i==playerIndex ? 0.35 : 0.25}) rotate(${d.ang-90})`);
 
 
     puckG.selectAll("#mags").transition()
             .duration(50)
-            .attr("transform",d => `scale (0.25) rotate(${d.ang-90})`);
+            .attr("transform",(d,i) => `scale (${i==playerIndex ? 0.35 : 0.25}) rotate(${d.ang-90})`);
 }
  
 socket.on("initData", d =>{
@@ -263,8 +263,8 @@ socket.on("initData", d =>{
     data.question=d.question;
     data.answers=d.answers;
     data.player=d.player;
-    playerKey=d.playerKey;
-    console.log("R",roomID,"P",playerKey,data)
+    //playerKey=d.playerKey;
+    console.log("R",roomID,"P",socket.id,data)
     loadQuestions();
     enterMags();
     //updateMags();
@@ -279,25 +279,28 @@ socket.on("updatePositon",d=>{
     updateMags();
 });
 
+socket.on("someone-left",d=>{
+    data.player=d;
+    console.log(data.player.map(e=>e.ang))
+    d3.select("svg").selectAll("#mags").remove();
+    updateMags();
+})
+
 socket.on('connectToRoom', () => {
     console.log("i want to join!")
-    if (typeof(playerKey)=="undefined"){
+    //if (typeof(playerKey)=="undefined"){
 
         //const playerKey = document.cookie
         //.split('; ')
         //.find(row => row.startsWith(id))
         //.split('=')[1];
-        socket.emit("join-room", {roomID,playerKey});
-    }else{
-        console.log("Key already exist",playerKey)
-    }
+        socket.emit("join-room", {roomID});
+    //}else{
+    //    console.log("Key already exist",playerKey)
+    //}
 });
 
-socket.on("setKey", Pkey=> {
-    //document.cookie= roomID+"="+Pkey;
-    playerKey = Pkey;
-    console.log("key arrived:",playerKey)
-});
+
 
 socket.on("start",()=>{
     window.setInterval(loop, 10)

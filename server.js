@@ -12,7 +12,8 @@ let created_rooms= [
         "id": "1234",
         "player": [],
         "question" : ["What restaurant is the best?"],
-        "answers": ["Indian","Mexican","German","Chinese","Italy"]
+        "answers": ["Indian","Mexican","German","Chinese","Italy"],
+        "cC": []  // currentConnections
     }
 ];
 app.get("/rooms", (req, res) => {
@@ -23,7 +24,42 @@ app.get("/rooms", (req, res) => {
 
 io.on('connection', function(socket) {
    
+
+    socket.on("disconnecting", ()=>{
+
+            const rooms=Object.keys(socket.rooms)
+            
+            console.log("RL: ",rooms)
+            if (rooms.length > 0){
+                roomIndex=created_rooms.findIndex(e=> e.player.some(e=>e.id==socket.id));
+                console.log("Index of foud Room: ", roomIndex, "\n", created_rooms)
+            if(typeof roomIndex !="undefined" && roomIndex!=-1){
+                const roomID = created_rooms[roomIndex].id
+                console.log("Socker: ",io.sockets.adapter.rooms[roomID],"\nMyLog: ",created_rooms[roomIndex].player)
+            
+                // Find socket.id in the created rooms data to later delete it.
+                const playerInd=created_rooms[roomIndex].player.findIndex(p => p.id==socket.id)
+                if (typeof playerInd != "undefined"){
+                    rm=created_rooms[roomIndex].player.splice(playerInd,1);
+                    console.log("Player with the id:", rm, " was rm!");
+                    io.sockets.in(roomID).emit('someone-left',created_rooms[roomIndex].player);
+                }else{
+                    console.log("socket id does not exist in the data")
+                }
+
+                //if (io.sockets.adapter.rooms[roomID].length<1){
+                //    const myRoom_ind=created_rooms.findIndex(e => e.id==roomID);
+                //    created_rooms.splice(myRoom_ind,1);
+                //}
+            }
+            
+        }
+
+
+
+    });
    
+
    //if(io.nsps['/'].adapter.rooms["room-"+roomno] && io.nsps['/'].adapter.rooms["room-"+roomno].length > 1) roomno++;
    socket.on("create-room",(data)=>{
 
@@ -55,7 +91,7 @@ io.on('connection', function(socket) {
             myRoom=created_rooms.find(e => e.id==roomID)
             
             const myRoom_ind=created_rooms.findIndex(e => e.id==roomID)
-            if (myRoom.player.length>0){
+            /*if (myRoom.player.length>0){
                 console.log(myRoom.player)
                 room_ids=myRoom.player.map(d=>{
                     return d.id
@@ -64,22 +100,25 @@ io.on('connection', function(socket) {
                 myID=Math.max.apply(null,room_ids)+1;
             }else{
                 myID=1;
-            }
+            }*/
+
+            console.log(socket.id)
 
             created_rooms[myRoom_ind].player.push({
-                "id": myID,
+                //"id": myID,
+                "id":socket.id, 
                 "ang": Math.floor(Math.random()*360)
             });
             
             socket.join(roomID);
             let initD = created_rooms[myRoom_ind]
-            initD.playerKey=myID;
+            //initD.playerKey=myID;
             console.log("InitD:" ,initD);
             socket.emit("initData",initD);
             socket.on("initData_finished",()=>{
                 const myRoom_ind =created_rooms.findIndex(e => e.id==roomID);
                 io.sockets.in(roomID).emit('updatePositon',created_rooms[myRoom_ind].player);
-                console.log("key send:",myID)
+                //console.log("key send:",myID)
                 console.log("Someone joint room: ", roomID)
                 console.log("Created Roomes:\n ",created_rooms[myRoom_ind].player)
                 console.log("join-done")
@@ -89,8 +128,8 @@ io.on('connection', function(socket) {
         }else{
             console.log("room does not exist!");
             socket.emit("initData",undefined);
-
         }
+        console.log(io.sockets.adapter.rooms[roomID])
     });
 
     socket.emit("connectToRoom");
@@ -105,11 +144,11 @@ io.on('connection', function(socket) {
         //console.log(data)
         //const {roomID,playerKey, ang } = data;
         const roomID= data.roomID;
-        const playerKey= data.playerKey;
-        if (typeof(playerKey)!="undefined"){
+        //const playerKey= data.playerKey;
+        //if (typeof(playerKey)!="undefined"){
                 const angle = data.angle;
                 const roomIndex=created_rooms.findIndex(e=>e.id==roomID);
-                const playerIndex=created_rooms[roomIndex].player.findIndex(e=>e.id==playerKey);
+                const playerIndex=created_rooms[roomIndex].player.findIndex(e=>e.id==socket.id);
                 //console.log(created_rooms[roomIndex].player, "id: ", playerIndex)
                 if (playerIndex!=-1){
                 created_rooms[roomIndex].player[playerIndex]["ang"]=angle;
@@ -121,13 +160,18 @@ io.on('connection', function(socket) {
                     io.sockets.in(roomID).emit('updatePositon',created_rooms[roomIndex].player);
                 }
             }
-        }
+        //}
         
     })
 
     socket.on("start",roomID=>{
         io.sockets.in(roomID).emit('start');
     })
+
+
+
+
+
     /*function emitPPositon(){
         created_rooms.forEach(e => {
             const roomID = e.id;
