@@ -233,7 +233,7 @@ function enterMags(){
                     .attr("id","mags")
                     .attr("fill","#fff")
                     .attr("fill-opacity","0")
-                    .attr("stroke",(d,i)=> i==playerIndex ?	"#f44336": "#000")
+                    .attr("stroke","#000")
                     .attr("stroke-width","22")
                     .attr("transform",(d,i) => `scale (${i==playerIndex ? 0.35 : 0.25}) rotate(${d.ang-90})`);
 }
@@ -244,7 +244,7 @@ function updateMags(){
                     .attr("id","mags")
                     .attr("fill","#fff")
                     .attr("fill-opacity","0")
-                    .attr("stroke",(d,i)=> i==playerIndex ?	"#f44336": "#000")
+                    .attr("stroke","#000")
                     .attr("stroke-width","22")
                     .attr("transform",(d,i) => `scale (${i==playerIndex ? 0.35 : 0.25}) rotate(${d.ang-90})`);
 

@@ -2,13 +2,16 @@ $(document).ready(function() {
     var max_fields = 10;
     var wrapper = $(".ansewer-container");
     var add_button = $(".add_form_field");
-
+    let width=screen.width;
+    
+    let fontsize= width<=600 ? "30px": "16px";
+    console.log(width,fontsize)
     var x = 1;
     $(add_button).click(function(e) {
         e.preventDefault();
         if (x < max_fields) {
             x++;
-            $(wrapper).append('<div id="answers"><input id="answers" type="text" name="answers" placeholder="Enter short answer" required/><span style="font-size:16px; font-weight:bold;" class="delete">-</span></div>'); //add input box
+            $(wrapper).append('<div id="answers"><input id="answers" type="text" name="answers" placeholder="Enter short answer" required/><span style="font-size: 16px ; font-weight:bold;" class="delete">-</span></div>'); //add input box
         } else {
             alert('You Reached the limits')
         }
